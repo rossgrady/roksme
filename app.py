@@ -19,6 +19,6 @@ def main():
     venue_array = venue['parser'](venue['name'], venue['url'], headers)
     events_array = events_array + venue_array
   events_sorted = sorted(events_array, key=itemgetter('event_date'))
-  template.stream(events=events_sorted).dump('roksme.html')
+  template.stream(events=events_sorted).dump('index.html')
 
 main()
