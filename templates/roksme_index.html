@@ -1,19 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>My Webpage</title>
+    <title>roks.me</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
 </head>
 <body>
-
-  <h1>My Webpage</h1>
-
+<main class="container">
+  <h1>upcoming shows</h1>
+  <table class="striped">
   {% for item in events %}
+    <tr><td>
     <div class="event">
-      <a href="{{ item.venue_url }}">{{ item.venue_name }}</a>
-      {{ item.event_date }}
-      {{ item.event_string }}
-      <a href="{{ item.more_url }}">More Info</a>
+      <div class="info_url">
+      <a href="{{ item.more_url }}">{{ item.event_string }}</a></div>
+      <div class="date">
+      {{ item.human_date }}</div>
+      <div class="venue">
+      <a href="{{ item.venue_url }}">{{ item.venue_name }}</a></div>
     </div>
+    </td></tr>
   {% endfor %}
+</table>
+</main>
 </body>
 </html>

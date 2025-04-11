@@ -18,7 +18,7 @@ def rhp_parser(venue_name, url, headers):
     if(opener):
       opener_name = opener.string.strip()
       if len(opener_name) > 0:
-        event_string = title+", "+opener_name
+        event_string = title+" w/ "+opener_name
     venue = event.find(class_="venueLink")
     if venue:
       venue_url = venue['href']
@@ -30,6 +30,7 @@ def rhp_parser(venue_name, url, headers):
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
     event_dict['event_date'] = show_date
+    event_dict['human_date'] = show_date.strftime('%a %d %b %Y')
     event_dict['more_url'] = more_url
     event_array.append(event_dict)
   return event_array
