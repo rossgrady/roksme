@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My Webpage</title>
+</head>
+<body>
+
+  <h1>My Webpage</h1>
+
+  {% for item in events %}
+    <div class="event">
+      <a href="{{ item.venue_url }}">{{ item.venue_name }}</a>
+      {{ item.event_date }}
+      {{ item.event_string }}
+      <a href="{{ item.more_url }}">More Info</a>
+    </div>
+  {% endfor %}
+</body>
+</html>
