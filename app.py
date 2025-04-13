@@ -1,4 +1,4 @@
-from parsers import rhp_parser
+from parsers import rhp_parser, tribe_parser
 from operator import itemgetter
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 env = Environment(
@@ -9,9 +9,11 @@ template = env.get_template("roksme_index.html")
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
 
-venues_list = [{'name':"Cat's Cradle", 'url':'https://catscradle.com/events/?view=list', 'parser':rhp_parser},
-  {'name': "Local 506", 'url':'https://local506.com/events/?view=list', 'parser':rhp_parser},
-  {'name':"The Pinhook", 'url':'https://thepinhook.com/events/?view=list', 'parser':rhp_parser}]
+#venues_list = [{'name':"Cat's Cradle", 'url':'https://catscradle.com/events/?view=list', 'parser':rhp_parser},
+# {'name': "Local 506", 'url':'https://local506.com/events/?view=list', 'parser':rhp_parser},
+ # {'name':"The Pinhook", 'url':'https://thepinhook.com/events/?view=list', 'parser':rhp_parser}]
+
+venues_list = [{'name':"The Cave", 'url':'https://caverntavern.com/calendar/', 'parser':tribe_parser}]
 
 def main():
   events_array = []
