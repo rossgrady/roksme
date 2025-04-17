@@ -14,7 +14,7 @@ def main():
   for venue in venues_list:
     venue_array = venue['parser'](venue['name'], venue['url'])
     events_array = events_array + venue_array
-  events_sorted = sorted(events_array, key=itemgetter('event_date'))
+  events_sorted = sorted(events_array, key=itemgetter('event_date', 'venue_name'))
   template.stream(events=events_sorted).dump('index.html')
 
 main()
