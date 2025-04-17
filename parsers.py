@@ -46,7 +46,7 @@ def rhp_parser(venue_name, url):
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
     event_dict['event_date'] = show_date
-    event_dict['human_date'] = show_date.strftime('%a %d %b %Y')
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     flag = False
     for word in stopwords:
@@ -88,7 +88,7 @@ def tribe_parser(venue_name, url):
       event_dict['venue_url'] = venue_url
       event_dict['event_string'] = event_string
       event_dict['event_date'] = show_date
-      event_dict['human_date'] = show_date.strftime('%a %d %b %Y')
+      event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
       event_dict['more_url'] = more_url
       flag = False
       for word in stopwords:
@@ -134,7 +134,7 @@ def tickera_parser(venue_name, url):
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
     event_dict['event_date'] = show_date
-    event_dict['human_date'] = show_date.strftime('%a %d %b %Y')
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     flag = False
     for word in stopwords:
@@ -163,7 +163,7 @@ def mec_parser(venue_name, url):
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
     event_dict['event_date'] = show_date
-    event_dict['human_date'] = show_date.strftime('%a %d %b %Y')
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     flag = False
     for word in stopwords:
@@ -196,7 +196,7 @@ def eventprime_parser(venue_name, url):
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
     event_dict['event_date'] = show_date
-    event_dict['human_date'] = show_date.strftime('%a %d %b %Y')
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     flag = False
     for word in stopwords:
