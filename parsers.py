@@ -4,7 +4,7 @@ import requests
 import dateparser
 import icalendar
 
-stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO"]
+stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft"]
 
 def retrieve(url):
   headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
@@ -130,6 +130,35 @@ def tickera_parser(venue_name, url):
     date = event.find(class_="tc-event-date").span.string.strip()
     show_date = dateparser.parse(date)
     more_url = event.find('h4').a['href']
+    event_dict['venue_name'] = venue_name
+    event_dict['venue_url'] = venue_url
+    event_dict['event_string'] = event_string
+    event_dict['event_date'] = show_date
+    event_dict['human_date'] = show_date.strftime('%a %d %b %Y')
+    event_dict['more_url'] = more_url
+    flag = False
+    for word in stopwords:
+      if word in event_string:
+        flag = True
+    if flag == False:
+      event_array.append(event_dict)
+  return event_array
+
+
+def mec_parser(venue_name, url):
+  html_content = retrieve(url)
+  soup = BeautifulSoup(html_content, 'html5lib')
+  events_container = soup.find(class_="mec-event-list-standard")
+  events = events_container.find_all(class_='mec-event-article')
+  event_array = []
+  for event in events:
+    event_dict = {}
+    title = event.find(class_='mec-event-title').a.string.strip()
+    event_string = title
+    venue_url = url
+    date = event.find(class_="mec-start-date-label").string.strip()
+    show_date = dateparser.parse(date)
+    more_url = event.find(class_='mec-event-title').a['href']
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
