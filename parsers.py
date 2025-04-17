@@ -122,7 +122,7 @@ def tickera_parser(venue_name, url):
     if(opener):
       opener_name = opener.next_sibling.strip()
       if len(opener_name) > 0:
-        event_string = title+" / "+opener_name
+        event_string = event_string+" / "+opener_name
     venue = event.find(class_="venueLink")
     if venue:
       venue_url = venue['href']
@@ -159,6 +159,39 @@ def mec_parser(venue_name, url):
     date = event.find(class_="mec-start-date-label").string.strip()
     show_date = dateparser.parse(date)
     more_url = event.find(class_='mec-event-title').a['href']
+    event_dict['venue_name'] = venue_name
+    event_dict['venue_url'] = venue_url
+    event_dict['event_string'] = event_string
+    event_dict['event_date'] = show_date
+    event_dict['human_date'] = show_date.strftime('%a %d %b %Y')
+    event_dict['more_url'] = more_url
+    flag = False
+    for word in stopwords:
+      if word in event_string:
+        flag = True
+    if flag == False:
+      event_array.append(event_dict)
+  return event_array
+
+def eventprime_parser(venue_name, url):
+  html_content = retrieve(url)
+  soup = BeautifulSoup(html_content, 'html5lib')
+  events_container = soup.find("table", id="Shows")
+  events = events_container.find_all("tr")
+  event_array = []
+  for event in events:
+    event_dict = {}
+    title = event.find("h3")
+    event_string = title.string.strip()
+    venue_url = url
+    opener = title.find_next_sibling("h4")
+    if(opener):
+      opener_name = opener.string.strip()
+      if len(opener_name) > 0:
+        event_string = event_string + " " + opener_name
+    date = event.find(class_="date").string.strip()
+    show_date = dateparser.parse(date)
+    more_url = event.find(class_='body').a['href']
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
