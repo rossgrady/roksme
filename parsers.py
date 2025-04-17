@@ -4,7 +4,7 @@ import requests
 import dateparser
 import icalendar
 
-stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY"]
+stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY", "CLOSED FOR A PRIVATE EVENT", "BIRTHDAY BASH", "BROOKLYN BARISTA", "BRUNCH SOCIETY", "brunch society", "VINYL DECODED"]
 
 def retrieve(url):
   headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
@@ -255,13 +255,14 @@ def sqs_parser(venue_name, url):
     event_string = title.string.strip()
     venue_url = url
     opener_container = event.find(class_="eventlist-description")
-    opener = opener_container.find(class_="sqs-html-content").p
-    if(opener):
+    if(opener_container):
+      opener = opener_container.find(class_="sqs-html-content").p
       if len(opener) > 0:
-        if "w/" in opener.string:
-          event_string = event_string + " " + opener.string.strip()
-        elif "featuring" in opener.string:
-          event_string = event_string + opener.string.strip()
+        if opener.string:
+          if "w/" in opener.string:
+            event_string = event_string + " " + opener.string.strip()
+          elif "featuring" in opener.string:
+            event_string = event_string + opener.string.strip()
     date_container = event.find(class_="eventlist-datetag-inner")
     date_month = date_container.find(class_="eventlist-datetag-startdate--month").string.strip()
     date_day = date_container.find(class_="eventlist-datetag-startdate--day").string.strip()
