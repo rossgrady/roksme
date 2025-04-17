@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import html5lib
 import requests
 import dateparser
-#import icalendar
+import icalendar
 
 stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO"]
 
