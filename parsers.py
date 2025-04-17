@@ -4,7 +4,7 @@ import requests
 import dateparser
 import icalendar
 
-stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV"]
+stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY"]
 
 def retrieve(url):
   headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
@@ -229,6 +229,47 @@ def avia_parser(venue_name, url):
     date = event.find(class_="showdate").string.strip()
     show_date = dateparser.parse(date)
     more_url = title.a['href']
+    event_dict['venue_name'] = venue_name
+    event_dict['venue_url'] = venue_url
+    event_dict['event_string'] = event_string
+    event_dict['event_date'] = show_date
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
+    event_dict['more_url'] = more_url
+    flag = False
+    for word in stopwords:
+      if word in event_string:
+        flag = True
+    if flag == False:
+      event_array.append(event_dict)
+  return event_array
+
+def sqs_parser(venue_name, url):
+  html_content = retrieve(url)
+  soup = BeautifulSoup(html_content, 'html5lib')
+  events_container = soup.find(class_="eventlist--upcoming")
+  events = events_container.find_all(class_="eventlist-event--upcoming")
+  event_array = []
+  for event in events:
+    event_dict = {}
+    title = event.find(class_="eventlist-title-link")
+    event_string = title.string.strip()
+    venue_url = url
+    opener_container = event.find(class_="eventlist-description")
+    opener = opener_container.find(class_="sqs-html-content").p
+    if(opener):
+      if len(opener) > 0:
+        if "w/" in opener.string:
+          event_string = event_string + " " + opener.string.strip()
+        elif "featuring" in opener.string:
+          event_string = event_string + opener.string.strip()
+    date_container = event.find(class_="eventlist-datetag-inner")
+    date_month = date_container.find(class_="eventlist-datetag-startdate--month").string.strip()
+    date_day = date_container.find(class_="eventlist-datetag-startdate--day").string.strip()
+    date = date_month + " " + date_day
+    show_date = dateparser.parse(date)
+    more_url_rel = title['href']
+    more_url_rel_rel = more_url_rel.split('/')
+    more_url = url + "/" + more_url_rel_rel[2]
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
