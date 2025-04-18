@@ -24,6 +24,14 @@ def retrieve_tickera(url):
   real_response = session.post(real_url, headers=headers, data=payload)
   return real_response.text
 
+def retrieve_carolina(url):
+  headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
+  session = requests.Session()
+  response = session.get(url, headers=headers)
+  real_url = "https://carolinatheatre.org/wp-admin/admin-ajax.php?action=event_filter&events=all"
+  real_response = session.get(real_url, headers=headers)
+  return real_response.text
+
 def rhp_parser(venue_name, url):
   html_content = retrieve(url)
   soup = BeautifulSoup(html_content, 'html5lib')
