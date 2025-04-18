@@ -295,6 +295,8 @@ def seetickets_parser(venue_name, url):
       paginated_url = url + "?list1page=" + str(i)
     html_content = retrieve(paginated_url)
     soup = BeautifulSoup(html_content, 'html5lib')
+    if soup(id="cf-error-details"):
+      return event_array
     if soup(class_="no-events"):
       return event_array
     events_container = soup.find(class_="seetickets-list-events")
