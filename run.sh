@@ -1,3 +1,3 @@
-#!/bin/bash
-source py3.12/bin/activate
+#!/bin/zsh
 python app.py
+scp index.html ragrady@groovo.org:~/roks.me/index.html
