@@ -12,6 +12,7 @@ venues_list = [{'name':"Cat's Cradle", 'url':'https://catscradle.com/events/?vie
 def main():
   events_array = []
   for venue in venues_list:
+    print("working on", venue['name'])
     venue_array = venue['parser'](venue['name'], venue['url'])
     events_array = events_array + venue_array
   events_sorted = sorted(events_array, key=itemgetter('event_date', 'venue_name'))
