@@ -398,7 +398,6 @@ def dpac_parser(venue_name, url):
 
 def carolina_parser(venue_name, url):
   html_content = retrieve_carolina(url)
-  print(html_content)
   soup = BeautifulSoup(html_content, 'html5lib')
   events_container = soup.find(class_="card__wrapper")
   events = events_container.find_all(class_="eventCard")
