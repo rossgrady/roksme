@@ -2,8 +2,8 @@ from bs4 import BeautifulSoup
 import html5lib
 import requests
 import dateparser
-import icalendar
 import json
+from datetime import date
 
 # we really do need parser-specific stopwords, sigh
 
@@ -51,8 +51,8 @@ def rhp_parser(venue_name, url):
     if venue:
       venue_url = venue['href']
       venue_name = venue.string.strip()
-    date = event.find(class_="singleEventDate").string.strip()
-    show_date = dateparser.parse(date)
+    raw_date = event.find(class_="singleEventDate").string.strip()
+    show_date = dateparser.parse(raw_date)
     more_url = event.find(class_="rhp-event__cta__more-info--list").a['href']
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
@@ -94,8 +94,8 @@ def tribe_parser(venue_name, url):
             opener_name = opener.string.strip()
             if opener_name not in event_string:
               event_string = event_string+" / "+opener_name
-      date = event.find(class_="tribe-events-calendar-list__event-date-tag-datetime")['datetime']
-      show_date = dateparser.parse(date)
+      raw_date = event.find(class_="tribe-events-calendar-list__event-date-tag-datetime")['datetime']
+      show_date = dateparser.parse(raw_date)
       event_dict['venue_name'] = venue_name
       event_dict['venue_url'] = venue_url
       event_dict['event_string'] = event_string
@@ -109,16 +109,6 @@ def tribe_parser(venue_name, url):
       if flag == False:
         event_array.append(event_dict)
   return event_array
-
-def ical_parser(venue_name, url):
-  ical_content = retrieve(url)
-  # now we need to parse that ical!
-  calendar = icalendar.Calendar.from_ical(ical_content)
-  for event in calendar.events:
-    print(event.get("SUMMARY"))
-    print(event.get("DTSTART"))
-    print(event.get("DESCRIPTION"))
-    print("---")
 
 def tickera_parser(venue_name, url):
   html_content = retrieve_tickera(url)
@@ -139,8 +129,8 @@ def tickera_parser(venue_name, url):
     if venue:
       venue_url = venue['href']
       venue_name = venue.string.strip()
-    date = event.find(class_="tc-event-date").span.string.strip()
-    show_date = dateparser.parse(date)
+    raw_date = event.find(class_="tc-event-date").span.string.strip()
+    show_date = dateparser.parse(raw_date)
     more_url = event.find('h4').a['href']
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
@@ -168,8 +158,8 @@ def mec_parser(venue_name, url):
     title = event.find(class_='mec-event-title').a.string.strip()
     event_string = title
     venue_url = url
-    date = event.find(class_="mec-start-date-label").string.strip()
-    show_date = dateparser.parse(date)
+    raw_date = event.find(class_="mec-start-date-label").string.strip()
+    show_date = dateparser.parse(raw_date)
     more_url = event.find(class_='mec-event-title').a['href']
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
@@ -201,8 +191,8 @@ def eventprime_parser(venue_name, url):
       opener_name = opener.string.strip()
       if len(opener_name) > 0:
         event_string = event_string + " " + opener_name
-    date = event.find(class_="date").string.strip()
-    show_date = dateparser.parse(date)
+    raw_date = event.find(class_="date").string.strip()
+    show_date = dateparser.parse(raw_date)
     more_url = event.find(class_='body').a['href']
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
@@ -211,6 +201,9 @@ def eventprime_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     for word in stopwords:
       if word in event_string:
         flag = True
@@ -238,8 +231,8 @@ def avia_parser(venue_name, url):
           event_string = event_string + opener.string.strip()
         else:
           event_string = event_string + "/ " + opener.string.strip()
-    date = event.find(class_="showdate").string.strip()
-    show_date = dateparser.parse(date)
+    raw_date = event.find(class_="showdate").string.strip()
+    show_date = dateparser.parse(raw_date)
     more_url = title.a['href']
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
@@ -278,8 +271,8 @@ def sqs_parser(venue_name, url):
     date_container = event.find(class_="eventlist-datetag-inner")
     date_month = date_container.find(class_="eventlist-datetag-startdate--month").string.strip()
     date_day = date_container.find(class_="eventlist-datetag-startdate--day").string.strip()
-    date = date_month + " " + date_day
-    show_date = dateparser.parse(date)
+    raw_date = date_month + " " + date_day
+    show_date = dateparser.parse(raw_date)
     more_url_rel = title['href']
     more_url_rel_rel = more_url_rel.split('/')
     more_url = url + "/" + more_url_rel_rel[2]
@@ -290,6 +283,9 @@ def sqs_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     for word in stopwords:
       if word in event_string:
         flag = True
@@ -317,8 +313,8 @@ def seetickets_parser(venue_name, url):
       title = event.find(class_='event-title')
       event_string = title.a.string.strip()
       venue_url = url
-      date = event.find(class_="event-date").string.strip()
-      show_date = dateparser.parse(date)
+      raw_date = event.find(class_="event-date").string.strip()
+      show_date = dateparser.parse(raw_date)
       more_url = title.a['href']
       event_dict['venue_name'] = venue_name
       event_dict['venue_url'] = venue_url
@@ -379,8 +375,8 @@ def dpac_parser(venue_name, url):
     date_month = date_container.find(class_="m-date__month").string.strip()
     date_day = date_container.find(class_="m-date__day").string.strip()
     date_year = date_container.find(class_="m-date__year").string.strip()
-    date = date_month + " " + date_day + date_year
-    show_date = dateparser.parse(date)
+    raw_date = date_month + " " + date_day + date_year
+    show_date = dateparser.parse(raw_date)
     more_url = title['href']
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
@@ -409,8 +405,8 @@ def carolina_parser(venue_name, url):
     date_container = event.find(class_="event__dateBox")
     date_month = date_container.find(class_="month").string.strip()
     date_day = date_container.find(class_="day").string.strip()
-    date = date_month + " " + date_day
-    show_date = dateparser.parse(date)
+    raw_date = date_month + " " + date_day
+    show_date = dateparser.parse(raw_date)
     more_url = event.a['href']
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = "https://carolinatheatre.org/events/"
@@ -424,6 +420,66 @@ def carolina_parser(venue_name, url):
       flag = False
     else:
       flag = True
+    for word in stopwords:
+      if word in event_string:
+        flag = True
+    if flag == False:
+      event_array.append(event_dict)
+  return event_array
+
+def opendate_parser(venue_name, url):
+  html_content = retrieve(url)
+  soup = BeautifulSoup(html_content, 'html5lib')
+  events_container = soup.find(class_="form-row")
+  events = events_container.find_all(class_="card-body")
+  event_array = []
+  for event in events:
+    event_dict = {}
+    title = event.find("p", class_="text-dark")
+    event_string = ""
+    for string in title.a.stripped_strings:
+      event_string = event_string + string + " "
+    raw_date = title.find_next_sibling("p").string.strip()
+    show_date = dateparser.parse(raw_date)
+    more_url = title.a['href']
+    event_dict['venue_name'] = venue_name
+    event_dict['venue_url'] = "https://www.durhamfruit.com/"
+    event_dict['event_string'] = event_string.strip()
+    event_dict['event_date'] = show_date
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
+    event_dict['more_url'] = more_url
+    flag = False
+    for word in stopwords:
+      if word in event_string:
+        flag = True
+    if flag == False:
+      event_array.append(event_dict)
+  return event_array
+
+def clickgobuynow_parser(venue_name, url):
+  html_content = retrieve(url)
+  soup = BeautifulSoup(html_content, 'html5lib')
+  events_container = soup.find(class_="panel")
+  events = events_container.find_all(class_='row')
+  event_array = []
+  for event in events:
+    event_dict = {}
+    title = event.find(class_='title').string.strip()
+    event_string = title
+    venue_url = "https://www.durhamjazzworkshop.org/concerts.html"
+    date_container = event.find(class_="event-date")
+    date_month = date_container.find(class_="event-month").string.strip()
+    date_day = date_container.find(class_="event-day").string.strip()
+    raw_date = date_month + " " + date_day
+    show_date = dateparser.parse(raw_date)
+    more_url = event.find(class_='button-group').find(class_='secondary')['href']
+    event_dict['venue_name'] = venue_name
+    event_dict['venue_url'] = venue_url
+    event_dict['event_string'] = event_string
+    event_dict['event_date'] = show_date
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
+    event_dict['more_url'] = more_url
+    flag = False
     for word in stopwords:
       if word in event_string:
         flag = True
