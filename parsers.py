@@ -5,7 +5,9 @@ import dateparser
 import icalendar
 import json
 
-stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY", "CLOSED FOR A PRIVATE EVENT", "BIRTHDAY BASH", "BROOKLYN BARISTA", "BRUNCH SOCIETY", "brunch society", "VINYL DECODED", "Emo Night", "Comedy Show", "DANCE NIGHT", "The Glitter Hour", "Triangle Film", "EDM Weekly Party", "Goth Night", "Amateur Burlesque"]
+# we really do need parser-specific stopwords, sigh
+
+stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY", "CLOSED FOR A PRIVATE EVENT", "BIRTHDAY BASH", "BROOKLYN BARISTA", "BRUNCH SOCIETY", "brunch society", "VINYL DECODED", "Emo Night", "Comedy Show", "DANCE NIGHT", "The Glitter Hour", "Triangle Film", "EDM Weekly Party", "Goth Night", "Amateur Burlesque", "Broadway"]
 
 def retrieve(url):
   headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
@@ -345,6 +347,77 @@ def freemius_parser(venue_name, url):
     flag = False
     for word in stopwords:
       if word in event_dict['event_string']:
+        flag = True
+    if flag == False:
+      event_array.append(event_dict)
+  return event_array
+
+def dpac_parser(venue_name, url):
+  html_content = retrieve(url)
+  soup = BeautifulSoup(html_content, 'html5lib')
+  events_container = soup.find(id="list")
+  events = events_container.find_all(class_="eventItem")
+  event_array = []
+  for event in events:
+    event_dict = {}
+    title = event.find(class_="title").a
+    event_string = title.string.strip()
+    venue_url = url
+    opener = event.find(class_="tagline")
+    if(opener):
+      if len(opener) > 0:
+        event_string = event_string + " - " + opener.string.strip()
+    date_container = event.find(class_="date")
+    date_month = date_container.find(class_="m-date__month").string.strip()
+    date_day = date_container.find(class_="m-date__day").string.strip()
+    date_year = date_container.find(class_="m-date__year").string.strip()
+    date = date_month + " " + date_day + date_year
+    show_date = dateparser.parse(date)
+    more_url = title['href']
+    event_dict['venue_name'] = venue_name
+    event_dict['venue_url'] = venue_url
+    event_dict['event_string'] = event_string
+    event_dict['event_date'] = show_date
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
+    event_dict['more_url'] = more_url
+    flag = False
+    for word in stopwords:
+      if word in event_string:
+        flag = True
+    if flag == False:
+      event_array.append(event_dict)
+  return event_array
+
+def carolina_parser(venue_name, url):
+  html_content = retrieve(url)
+  soup = BeautifulSoup(html_content, 'html5lib')
+  events_container = soup.find(class_="card__wrapper")
+  events = events_container.find_all(class_="eventCard")
+  event_array = []
+  for event in events:
+    event_dict = {}
+    title = event.find(class_="card__title")
+    event_string = title.string.strip()
+    date_container = event.find(class_="event__dateBox")
+    date_month = date_container.find(class_="month").string.strip()
+    date_day = date_container.find(class_="day").string.strip()
+    date = date_month + " " + date_day
+    show_date = dateparser.parse(date)
+    more_url = event.a['href']
+    event_dict['venue_name'] = venue_name
+    event_dict['venue_url'] = "https://carolinatheatre.org/events/"
+    event_dict['event_string'] = event_string
+    event_dict['event_date'] = show_date
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
+    event_dict['more_url'] = more_url
+    flag = False
+    category = event.find(class_="event__categories").string.strip()
+    if category == "Music":
+      flag = False
+    else:
+      flag = True
+    for word in stopwords:
+      if word in event_string:
         flag = True
     if flag == False:
       event_array.append(event_dict)
