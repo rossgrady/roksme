@@ -4,7 +4,7 @@ import requests
 import dateparser
 import icalendar
 
-stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY", "CLOSED FOR A PRIVATE EVENT", "BIRTHDAY BASH", "BROOKLYN BARISTA", "BRUNCH SOCIETY", "brunch society", "VINYL DECODED"]
+stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY", "CLOSED FOR A PRIVATE EVENT", "BIRTHDAY BASH", "BROOKLYN BARISTA", "BRUNCH SOCIETY", "brunch society", "VINYL DECODED", "Emo Night", "Comedy Show", "DANCE NIGHT"]
 
 def retrieve(url):
   headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
@@ -283,4 +283,39 @@ def sqs_parser(venue_name, url):
         flag = True
     if flag == False:
       event_array.append(event_dict)
+  return event_array
+
+def seetickets_parser(venue_name, url):
+  event_array = []
+  for i in range(1,7):
+    if i < 2:
+      paginated_url = url
+    else:
+      paginated_url = url + "?list1page=" + str(i)
+    html_content = retrieve(paginated_url)
+    soup = BeautifulSoup(html_content, 'html5lib')
+    if soup(class_="no-events"):
+      return event_array
+    events_container = soup.find(class_="seetickets-list-events")
+    events = events_container.find_all(class_='seetickets-list-event-container')
+    for event in events:
+      event_dict = {}
+      title = event.find(class_='event-title')
+      event_string = title.a.string.strip()
+      venue_url = url
+      date = event.find(class_="event-date").string.strip()
+      show_date = dateparser.parse(date)
+      more_url = title.a['href']
+      event_dict['venue_name'] = venue_name
+      event_dict['venue_url'] = venue_url
+      event_dict['event_string'] = event_string
+      event_dict['event_date'] = show_date
+      event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
+      event_dict['more_url'] = more_url
+      flag = False
+      for word in stopwords:
+        if word in event_string:
+          flag = True
+      if flag == False:
+        event_array.append(event_dict)
   return event_array
