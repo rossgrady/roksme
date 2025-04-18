@@ -3,8 +3,9 @@ import html5lib
 import requests
 import dateparser
 import icalendar
+import json
 
-stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY", "CLOSED FOR A PRIVATE EVENT", "BIRTHDAY BASH", "BROOKLYN BARISTA", "BRUNCH SOCIETY", "brunch society", "VINYL DECODED", "Emo Night", "Comedy Show", "DANCE NIGHT"]
+stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY", "CLOSED FOR A PRIVATE EVENT", "BIRTHDAY BASH", "BROOKLYN BARISTA", "BRUNCH SOCIETY", "brunch society", "VINYL DECODED", "Emo Night", "Comedy Show", "DANCE NIGHT", "The Glitter Hour", "Triangle Film", "EDM Weekly Party", "Goth Night", "Amateur Burlesque"]
 
 def retrieve(url):
   headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
@@ -321,4 +322,30 @@ def seetickets_parser(venue_name, url):
           flag = True
       if flag == False:
         event_array.append(event_dict)
+  return event_array
+
+def freemius_parser(venue_name, url):
+  json_content = retrieve(url)
+  data = json.loads(json_content)
+  event_array = []
+  for event in data['data']:
+    event_dict = {}
+    show_date = dateparser.parse(event['Event']['start'])
+    event_dict['venue_name'] = venue_name
+    if venue_name == "Ruby Deluxe":
+      event_dict['venue_url'] = "https://queerraleigh.com/home/ruby-deluxe/"
+    elif venue_name == "The Night Rider":
+      event_dict['venue_url'] = "https://queerraleigh.com/home/the-night-rider/"
+    elif venue_name == "The Wicked Witch":
+      event_dict['venue_url'] = "https://queerraleigh.com/home/the-wicked-witch/"
+    event_dict['event_string'] = event['Event']['name']
+    event_dict['event_date'] = show_date
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
+    event_dict['more_url'] = event['Event']['url']
+    flag = False
+    for word in stopwords:
+      if word in event_dict['event_string']:
+        flag = True
+    if flag == False:
+      event_array.append(event_dict)
   return event_array
