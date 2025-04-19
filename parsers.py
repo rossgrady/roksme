@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 stopwords = ["karaoke", "dance party", "open mic"]
 
 venue_stopwords = {
-  "Durham Performing Arts Center" : ["sesame street", "broadway", "stardew valley", "twilight in concert", "neil degrasse tyson", "ballet"],
+  "Durham Performing Arts Center" : ["sesame street", "broadway", "stardew valley", "twilight in concert", "neil degrasse tyson", "ballet", "musical"],
   "Martin Marietta Center" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
   "Koka Booth Amphitheatre" : ["bourbon & bbq", "wine & fire"],
   "Lincoln Theatre" : ["tribute", "bring out yer dead"],
@@ -34,7 +34,7 @@ venue_stopwords = {
   "Kings" : [],
   "Neptunes" : ["goth party", "munjo", "guitar hero iii", "neptunes comedy", "comedy taping", "chappell rodeo"],
   "Ruby Deluxe" : ["glitter hour", "sub rosa"],
-  "Slim's" : ["wild turkey thursday", "private event upstairs", "music trivia", "tequila tuesday", "pangean"],
+  "Slim's" : ["wild turkey thursday", "private event upstairs", "private mixer upstairs", "music trivia", "tequila tuesday", "pangean"],
   "The Wicked Witch" : ["safe word", "triangle film", "goth night"],
   "Red Hat Amphitheater" : [],
   "Fletcher Opera Theater" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
