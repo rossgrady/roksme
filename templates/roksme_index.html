@@ -13,6 +13,38 @@
 <body>
 <main class="container">
   <h1>upcoming shows</h1>
+  <nav>
+    <ul>
+      <li><a href="/index.html">
+        {% if county == "all" %}
+          <mark>all</mark>
+        {% else %}
+          all
+        {% endif %}
+      </a></li>
+      <li><a href="/durham.html">
+        {% if county == "durham" %}
+        <mark>durham</mark>
+        {% else %}
+          durham
+        {% endif %}
+      </a></li>
+      <li><a href="/orange.html">
+        {% if county == "orange" %}
+        <mark>orange</mark>
+        {% else %}
+          orange
+        {% endif %}
+      </a></li>
+      <li><a href="/wake.html">
+        {% if county == "wake" %}
+        <mark>wake</mark>
+        {% else %}
+          wake
+        {% endif %}
+      </a></li>
+    </ul>
+  </nav>
   <table class="striped">
   {% for item in events %}
     <tr><td>

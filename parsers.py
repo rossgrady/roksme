@@ -4,10 +4,11 @@ import requests
 import dateparser
 import json
 from datetime import date
+from urllib.parse import urlparse
 
 # we really do need parser-specific stopwords, sigh
 
-stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY", "CLOSED FOR A PRIVATE EVENT", "BIRTHDAY BASH", "BROOKLYN BARISTA", "BRUNCH SOCIETY", "brunch society", "VINYL DECODED", "Emo Night", "Comedy Show", "DANCE NIGHT", "The Glitter Hour", "Triangle Film", "EDM Weekly Party", "Goth Night", "Amateur Burlesque", "Broadway"]
+stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY", "CLOSED FOR A PRIVATE EVENT", "BIRTHDAY BASH", "BROOKLYN BARISTA", "BRUNCH SOCIETY", "brunch society", "VINYL DECODED", "Emo Night", "Comedy Show", "DANCE NIGHT", "The Glitter Hour", "Triangle Film", "EDM Weekly Party", "Goth Night", "Amateur Burlesque", "Broadway", "Burlesque", "NC Symphony", "Ballet"]
 
 def retrieve(url):
   headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
@@ -33,6 +34,7 @@ def retrieve_carolina(url):
   return real_response.text
 
 def rhp_parser(venue_name, url):
+  source = venue_name
   html_content = retrieve(url)
   soup = BeautifulSoup(html_content, 'html5lib')
   events = soup(class_="rhpSingleEvent")
@@ -57,10 +59,14 @@ def rhp_parser(venue_name, url):
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
+    event_dict['source'] = source
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     for word in stopwords:
       if word in event_string:
         flag = True
@@ -69,6 +75,7 @@ def rhp_parser(venue_name, url):
   return event_array
 
 def tribe_parser(venue_name, url):
+  source = venue_name
   event_array = []
   for i in range(1,7):
     if i < 2:
@@ -99,10 +106,14 @@ def tribe_parser(venue_name, url):
       event_dict['venue_name'] = venue_name
       event_dict['venue_url'] = venue_url
       event_dict['event_string'] = event_string
-      event_dict['event_date'] = show_date
+      event_dict['event_date'] = show_date.date()
       event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
       event_dict['more_url'] = more_url
+      event_dict['source'] = source
       flag = False
+      now = date.today()
+      if now > show_date.date():
+        flag = True
       for word in stopwords:
         if word in event_string:
           flag = True
@@ -111,6 +122,7 @@ def tribe_parser(venue_name, url):
   return event_array
 
 def tickera_parser(venue_name, url):
+  source = venue_name
   html_content = retrieve_tickera(url)
   soup = BeautifulSoup(html_content, 'html5lib')
   events = soup(class_="tc-single-event")
@@ -135,10 +147,14 @@ def tickera_parser(venue_name, url):
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
+    event_dict['source'] = source
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     for word in stopwords:
       if word in event_string:
         flag = True
@@ -148,6 +164,7 @@ def tickera_parser(venue_name, url):
 
 
 def mec_parser(venue_name, url):
+  source = venue_name
   html_content = retrieve(url)
   soup = BeautifulSoup(html_content, 'html5lib')
   events_container = soup.find(class_="mec-event-list-standard")
@@ -164,10 +181,14 @@ def mec_parser(venue_name, url):
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
+    event_dict['source'] = source
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     for word in stopwords:
       if word in event_string:
         flag = True
@@ -176,6 +197,7 @@ def mec_parser(venue_name, url):
   return event_array
 
 def eventprime_parser(venue_name, url):
+  source = venue_name
   html_content = retrieve(url)
   soup = BeautifulSoup(html_content, 'html5lib')
   events_container = soup.find("table", id="Shows")
@@ -197,9 +219,10 @@ def eventprime_parser(venue_name, url):
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
+    event_dict['source'] = source
     flag = False
     now = date.today()
     if now > show_date.date():
@@ -212,6 +235,7 @@ def eventprime_parser(venue_name, url):
   return event_array
 
 def avia_parser(venue_name, url):
+  source = venue_name
   html_content = retrieve(url)
   soup = BeautifulSoup(html_content, 'html5lib')
   events_container = soup.find(id="after_section_1")
@@ -237,10 +261,14 @@ def avia_parser(venue_name, url):
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
+    event_dict['source'] = source
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     for word in stopwords:
       if word in event_string:
         flag = True
@@ -249,6 +277,7 @@ def avia_parser(venue_name, url):
   return event_array
 
 def sqs_parser(venue_name, url):
+  source = venue_name
   html_content = retrieve(url)
   soup = BeautifulSoup(html_content, 'html5lib')
   events_container = soup.find(class_="eventlist--upcoming")
@@ -279,9 +308,10 @@ def sqs_parser(venue_name, url):
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
+    event_dict['source'] = source
     flag = False
     now = date.today()
     if now > show_date.date():
@@ -294,6 +324,7 @@ def sqs_parser(venue_name, url):
   return event_array
 
 def seetickets_parser(venue_name, url):
+  source = venue_name
   event_array = []
   for i in range(1,7):
     if i < 2:
@@ -319,10 +350,14 @@ def seetickets_parser(venue_name, url):
       event_dict['venue_name'] = venue_name
       event_dict['venue_url'] = venue_url
       event_dict['event_string'] = event_string
-      event_dict['event_date'] = show_date
+      event_dict['event_date'] = show_date.date()
       event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
       event_dict['more_url'] = more_url
+      event_dict['source'] = source
       flag = False
+      now = date.today()
+      if now > show_date.date():
+        flag = True
       for word in stopwords:
         if word in event_string:
           flag = True
@@ -331,6 +366,7 @@ def seetickets_parser(venue_name, url):
   return event_array
 
 def freemius_parser(venue_name, url):
+  source = venue_name
   json_content = retrieve(url)
   data = json.loads(json_content)
   event_array = []
@@ -345,10 +381,14 @@ def freemius_parser(venue_name, url):
     elif venue_name == "The Wicked Witch":
       event_dict['venue_url'] = "https://queerraleigh.com/home/the-wicked-witch/"
     event_dict['event_string'] = event['Event']['name']
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = event['Event']['url']
+    event_dict['source'] = source
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     for word in stopwords:
       if word in event_dict['event_string']:
         flag = True
@@ -357,6 +397,7 @@ def freemius_parser(venue_name, url):
   return event_array
 
 def dpac_parser(venue_name, url):
+  source = venue_name
   html_content = retrieve(url)
   soup = BeautifulSoup(html_content, 'html5lib')
   events_container = soup.find(id="list")
@@ -381,10 +422,14 @@ def dpac_parser(venue_name, url):
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
+    event_dict['source'] = source
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     for word in stopwords:
       if word in event_string:
         flag = True
@@ -393,6 +438,7 @@ def dpac_parser(venue_name, url):
   return event_array
 
 def carolina_parser(venue_name, url):
+  source = venue_name
   html_content = retrieve_carolina(url)
   soup = BeautifulSoup(html_content, 'html5lib')
   events_container = soup.find(class_="card__wrapper")
@@ -411,10 +457,14 @@ def carolina_parser(venue_name, url):
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = "https://carolinatheatre.org/events/"
     event_dict['event_string'] = event_string
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
+    event_dict['source'] = source
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     category = event.find(class_="event__categories").string.strip()
     if category == "Music":
       flag = False
@@ -428,6 +478,7 @@ def carolina_parser(venue_name, url):
   return event_array
 
 def opendate_parser(venue_name, url):
+  source = venue_name
   html_content = retrieve(url)
   soup = BeautifulSoup(html_content, 'html5lib')
   events_container = soup.find(class_="form-row")
@@ -445,10 +496,14 @@ def opendate_parser(venue_name, url):
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = "https://www.durhamfruit.com/"
     event_dict['event_string'] = event_string.strip()
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
+    event_dict['source'] = source
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     for word in stopwords:
       if word in event_string:
         flag = True
@@ -457,6 +512,7 @@ def opendate_parser(venue_name, url):
   return event_array
 
 def clickgobuynow_parser(venue_name, url):
+  source = venue_name
   html_content = retrieve(url)
   soup = BeautifulSoup(html_content, 'html5lib')
   events_container = soup.find(class_="panel")
@@ -476,13 +532,101 @@ def clickgobuynow_parser(venue_name, url):
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
     event_dict['event_string'] = event_string
-    event_dict['event_date'] = show_date
+    event_dict['event_date'] = show_date.date()
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
+    event_dict['source'] = source
     flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
     for word in stopwords:
       if word in event_string:
         flag = True
     if flag == False:
       event_array.append(event_dict)
+  return event_array
+
+def chakra_parser(venue_name, url):
+  source = venue_name
+  html_content = retrieve(url)
+  soup = BeautifulSoup(html_content, 'html5lib')
+  events_container = soup.find(attrs={"data-automation": "shows-grid"})
+  events = events_container.find_all(class_='chakra-card__footer')
+  event_array = []
+  for event in events:
+    event_dict = {}
+    title = event.find(class_='chakra-text').string.strip()
+    event_string = title
+    venue_url = url
+    raw_date = ""
+    for child in event.find("time").css.filter('p'):
+      if child.string.strip() == "Multi Day":
+        raw_date = "Jan 01 1990"
+        break
+      else:
+        raw_date = raw_date + child.string.strip() + " "
+    show_date = dateparser.parse(raw_date)
+    more_url = event.find(class_='chakra-linkbox__overlay')['href']
+    event_dict['venue_name'] = venue_name
+    event_dict['venue_url'] = venue_url
+    event_dict['event_string'] = event_string
+    event_dict['event_date'] = show_date.date()
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
+    event_dict['more_url'] = more_url
+    event_dict['source'] = source
+    flag = False
+    now = date.today()
+    if now > show_date.date():
+      flag = True
+    for word in stopwords:
+      if word in event_string:
+        flag = True
+    if flag == False:
+      event_array.append(event_dict)
+  return event_array
+
+def rcc_parser(venue_name, url):
+  source = venue_name
+  event_array = []
+  for i in range(2):
+    if i > 0 and source == "Red Hat Amphitheater":
+      return event_array
+    else:
+      paginated_url = url + "/?page=" + str(i)
+      html_content = retrieve(paginated_url)
+      soup = BeautifulSoup(html_content, 'html5lib')
+      events_container = soup.find(class_="view-rcc-events")
+      events = events_container.find_all(class_='node--type-event')
+      for event in events:
+        event_dict = {}
+        title = event.find(class_='event__title').a
+        event_string = title.span.string.strip()
+        venue_url = url
+        venue_name = event.find(class_='event__field-venue').string.strip()
+        date_container = event.find(class_="date__set--start")
+        date_month = date_container.find(class_="date__month-abbr").string.strip()
+        date_day = date_container.find(class_="date__day").string.strip()
+        raw_date = date_month + " " + date_day
+        show_date = dateparser.parse(raw_date)
+        more_url_rel = title['href']
+        url_parts = urlparse(url)
+        new_url = url_parts._replace(path=more_url_rel)
+        more_url = new_url.geturl()
+        event_dict['venue_name'] = venue_name
+        event_dict['venue_url'] = venue_url
+        event_dict['event_string'] = event_string
+        event_dict['event_date'] = show_date.date()
+        event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
+        event_dict['more_url'] = more_url
+        event_dict['source'] = source
+        flag = False
+        now = date.today()
+        if now > show_date.date():
+          flag = True
+        for word in stopwords:
+          if word in event_string:
+            flag = True
+        if flag == False:
+          event_array.append(event_dict)
   return event_array
