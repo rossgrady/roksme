@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 stopwords = ["karaoke", "dance party", "open mic"]
 
 venue_stopwords = {
-  "Durham Performing Arts Center" : ["sesame street", "broadway", "stardew valley", "twilight in concert", "neil degrasse tyson", "ballet", "musical"],
+  "Durham Performing Arts Center" : ["sesame street", "broadway", "stardew valley", "twilight in concert", "neil degrasse tyson", "ballet", "musical", "dave ramsey", "brit floyd", "get the led out", "louis ck", "vision of queen", "rocket man"],
   "Martin Marietta Center" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
   "Koka Booth Amphitheatre" : ["bourbon & bbq", "wine & fire"],
   "Lincoln Theatre" : ["tribute", "bring out yer dead"],
