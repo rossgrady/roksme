@@ -6,9 +6,51 @@ import json
 from datetime import date
 from urllib.parse import urlparse
 
-# we really do need parser-specific stopwords, sigh
+stopwords = ["karaoke", "dance party", "open mic"]
 
-stopwords = ["Karaoke", "KARAOKE", "Dance Party", "DANCE PARTY", "CALENDAR", "Wild Turkey Thursday", "Private Event Upstairs", "Open Mic", "Music Trivia", "Tequila Tuesday", "Pangean", "CANCELED", "VERANDA PARTY", "DRAG BINGO", "Movie Loft", "BYOV", "COMEDY NIGHT", "NEPTUNES COMEDY", "CLOSED FOR A PRIVATE EVENT", "BIRTHDAY BASH", "BROOKLYN BARISTA", "BRUNCH SOCIETY", "brunch society", "VINYL DECODED", "Emo Night", "Comedy Show", "DANCE NIGHT", "The Glitter Hour", "Triangle Film", "EDM Weekly Party", "Goth Night", "Amateur Burlesque", "Broadway", "Burlesque", "NC Symphony", "Ballet"]
+venue_stopwords = {
+  "Durham Performing Arts Center" : ["sesame street", "broadway", "stardew valley", "twilight in concert", "neil degrasse tyson", "ballet"],
+  "Martin Marietta Center" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
+  "Koka Booth Amphitheatre" : ["bourbon & bbq", "wine & fire"],
+  "Lincoln Theatre" : ["tribute", "bring out yer dead"],
+  "Missy Lane's Assembly Room" : ["closed for a private event", "birthday bash", "brookyln barista", "brunch society", "vinyl decoded", "exclusive preview"],
+  "Cat’s Cradle" : [],
+  "The Cave" : ["calendar"], 
+  "Cat’s Cradle Back Room" : [], 
+  "Cat’s Cradle Back Yard" : [],
+  "Haw River Ballroom" : [],
+  "Local 506" : [],
+  "Sharp 9 Gallery Jazz Club" : [], 
+  "The Fruit" : ["fruit flea", "rhizome comedy"], 
+  "Carolina Theatre" : ["a tribute to"], 
+  "Motorco Music Hall" : ["canceled", "party", "chappell roan", "drag bingo"], 
+  "The Pinhook" : ["russell lacy"], 
+  "Rubies" : ["byov"],
+  "Shadowbox Studio" : ["movie loft"],
+  "The Ritz Raleigh" : ["rave"],
+  "The Pour House" : ["superbloom comedy", "tribute experience", "a tribute to", "tribute night", "tributes to"],
+  "The Night Rider" : [],
+  "The Rialto" : [],
+  "Kings" : [],
+  "Neptunes" : ["goth party", "munjo", "guitar hero iii", "neptunes comedy", "comedy taping", "chappell rodeo"],
+  "Ruby Deluxe" : [],
+  "Slim's" : ["wild turkey thursday", "private event upstairs", "music trivia", "tequila tuesday", "pangean"],
+  "The Wicked Witch" : ["safe word", "triangle film", "goth night"],
+  "Red Hat Amphitheater" : [],
+  "Fletcher Opera Theater" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
+  "Memorial Auditorium" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
+  "Meymandi Concert Hall" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"]
+  }
+
+def filter_on_stopwords(venue_name, event_string):
+  if venue_stopwords[venue_name]:
+    custom_stopwords = stopwords + venue_stopwords[venue_name]
+  else:
+    custom_stopwords = stopwords
+  for word in custom_stopwords:
+    if word in event_string.lower():
+      return True
+  return False
 
 def retrieve(url):
   headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
@@ -53,6 +95,8 @@ def rhp_parser(venue_name, url):
     if venue:
       venue_url = venue['href']
       venue_name = venue.string.strip()
+    if venue_name == "the Pinhook":
+      venue_name = "The Pinhook"
     raw_date = event.find(class_="singleEventDate").string.strip()
     show_date = dateparser.parse(raw_date)
     more_url = event.find(class_="rhp-event__cta__more-info--list").a['href']
@@ -67,9 +111,7 @@ def rhp_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -114,9 +156,7 @@ def tribe_parser(venue_name, url):
       now = date.today()
       if now > show_date.date():
         flag = True
-      for word in stopwords:
-        if word in event_string:
-          flag = True
+      flag = filter_on_stopwords(venue_name, event_string)
       if flag == False:
         event_array.append(event_dict)
   return event_array
@@ -155,9 +195,7 @@ def tickera_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -189,9 +227,7 @@ def mec_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -227,9 +263,7 @@ def eventprime_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -269,9 +303,7 @@ def avia_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -316,9 +348,7 @@ def sqs_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -358,9 +388,7 @@ def seetickets_parser(venue_name, url):
       now = date.today()
       if now > show_date.date():
         flag = True
-      for word in stopwords:
-        if word in event_string:
-          flag = True
+      flag = filter_on_stopwords(venue_name, event_string)
       if flag == False:
         event_array.append(event_dict)
   return event_array
@@ -389,9 +417,7 @@ def freemius_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_dict['event_string']:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_dict['event_string'])
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -430,9 +456,7 @@ def dpac_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -470,9 +494,7 @@ def carolina_parser(venue_name, url):
       flag = False
     else:
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -504,9 +526,7 @@ def opendate_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -540,9 +560,7 @@ def clickgobuynow_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -579,9 +597,7 @@ def chakra_parser(venue_name, url):
     now = date.today()
     if now > show_date.date():
       flag = True
-    for word in stopwords:
-      if word in event_string:
-        flag = True
+    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -624,9 +640,7 @@ def rcc_parser(venue_name, url):
         now = date.today()
         if now > show_date.date():
           flag = True
-        for word in stopwords:
-          if word in event_string:
-            flag = True
+        flag = filter_on_stopwords(venue_name, event_string)
         if flag == False:
           event_array.append(event_dict)
   return event_array
