@@ -42,7 +42,10 @@ venue_stopwords = {
   "Meymandi Concert Hall" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"]
   }
 
-def filter_on_stopwords(venue_name, event_string):
+def filter_on_stopwords(venue_name, event_string, show_date):
+  now = date.today()
+  if show_date < now:
+    return True
   if venue_stopwords[venue_name]:
     custom_stopwords = stopwords + venue_stopwords[venue_name]
   else:
@@ -107,11 +110,7 @@ def rhp_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -152,11 +151,7 @@ def tribe_parser(venue_name, url):
       event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
       event_dict['more_url'] = more_url
       event_dict['source'] = source
-      flag = False
-      now = date.today()
-      if now > show_date.date():
-        flag = True
-      flag = filter_on_stopwords(venue_name, event_string)
+      flag = filter_on_stopwords(venue_name, event_string, show_date.date())
       if flag == False:
         event_array.append(event_dict)
   return event_array
@@ -191,11 +186,7 @@ def tickera_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -223,11 +214,7 @@ def mec_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -259,11 +246,7 @@ def eventprime_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -299,11 +282,7 @@ def avia_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -344,11 +323,7 @@ def sqs_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -384,11 +359,7 @@ def seetickets_parser(venue_name, url):
       event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
       event_dict['more_url'] = more_url
       event_dict['source'] = source
-      flag = False
-      now = date.today()
-      if now > show_date.date():
-        flag = True
-      flag = filter_on_stopwords(venue_name, event_string)
+      flag = filter_on_stopwords(venue_name, event_string, show_date.date())
       if flag == False:
         event_array.append(event_dict)
   return event_array
@@ -413,11 +384,7 @@ def freemius_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = event['Event']['url']
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_dict['event_string'])
+    flag = filter_on_stopwords(venue_name, event_dict['event_string'], show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -452,11 +419,7 @@ def dpac_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -485,16 +448,10 @@ def carolina_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     category = event.find(class_="event__categories").string.strip()
-    if category == "Music":
-      flag = False
-    else:
+    if category != "Music":
       flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -522,11 +479,7 @@ def opendate_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -556,11 +509,7 @@ def clickgobuynow_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -593,11 +542,7 @@ def chakra_parser(venue_name, url):
     event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
     event_dict['more_url'] = more_url
     event_dict['source'] = source
-    flag = False
-    now = date.today()
-    if now > show_date.date():
-      flag = True
-    flag = filter_on_stopwords(venue_name, event_string)
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
     if flag == False:
       event_array.append(event_dict)
   return event_array
@@ -636,11 +581,7 @@ def rcc_parser(venue_name, url):
         event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
         event_dict['more_url'] = more_url
         event_dict['source'] = source
-        flag = False
-        now = date.today()
-        if now > show_date.date():
-          flag = True
-        flag = filter_on_stopwords(venue_name, event_string)
+        flag = filter_on_stopwords(venue_name, event_string, show_date.date())
         if flag == False:
           event_array.append(event_dict)
   return event_array
