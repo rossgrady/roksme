@@ -1,5 +1,6 @@
 from parsers import rhp_parser, tribe_parser, tickera_parser, eventprime_parser, mec_parser, avia_parser, sqs_parser, seetickets_parser, freemius_parser, dpac_parser, carolina_parser, opendate_parser, clickgobuynow_parser, chakra_parser, rcc_parser
 from operator import itemgetter
+from datetime import date
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 env = Environment(
     loader=FileSystemLoader("templates"),
@@ -94,9 +95,10 @@ def main():
   durham_sorted = filter(durham, events_deduped)
   orange_sorted = filter(orange, events_deduped)
   wake_sorted = filter(wake, events_deduped)
-  template.stream(events=events_deduped, county="all").dump('index.html')
-  template.stream(events=durham_sorted, county="durham").dump('durham.html')
-  template.stream(events=orange_sorted, county="orange").dump('orange.html')
-  template.stream(events=wake_sorted, county="wake").dump('wake.html')
+  today = date.today().strftime('%A, %B %d, %Y')
+  template.stream(events=events_deduped, county="all", today=today).dump('index.html')
+  template.stream(events=durham_sorted, county="durham", today=today).dump('durham.html')
+  template.stream(events=orange_sorted, county="orange", today=today).dump('orange.html')
+  template.stream(events=wake_sorted, county="wake", today=today).dump('wake.html')
 
 main()
