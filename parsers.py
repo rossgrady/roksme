@@ -13,7 +13,7 @@ venue_stopwords = {
   "Martin Marietta Center" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
   "Koka Booth Amphitheatre" : ["bourbon & bbq", "wine & fire"],
   "Lincoln Theatre" : ["tribute", "bring out yer dead"],
-  "Missy Lane's Assembly Room" : ["closed for a private event", "birthday bash", "brooklyn barista", "brunch society", "vinyl decoded", "exclusive preview"],
+  "Missy Lane's Assembly Room" : ["closed for a private event", "birthday bash", "brooklyn barista", "brunch society", "vinyl decoded", "exclusive preview", "vin"],
   "Cat’s Cradle" : [],
   "The Cave" : ["calendar"], 
   "Cat’s Cradle Back Room" : [], 
@@ -24,8 +24,8 @@ venue_stopwords = {
   "The Fruit" : ["fruit flea", "rhizome comedy"], 
   "Carolina Theatre" : ["a tribute to"], 
   "Motorco Music Hall" : ["canceled", "party", "chappell roan", "drag bingo"], 
-  "The Pinhook" : ["russell lacy", "burlesque"], 
-  "Rubies" : ["byov"],
+  "The Pinhook" : ["russell lacy", "burlesque", "blends with friends"], 
+  "Rubies" : ["byov", "renaissance disko", "adulting"],
   "Shadowbox Studio" : ["movie loft"],
   "The Ritz Raleigh" : ["rave"],
   "The Pour House" : ["superbloom comedy", "tribute experience", "a tribute to", "tribute night", "tributes to"],
@@ -39,14 +39,15 @@ venue_stopwords = {
   "Red Hat Amphitheater" : [],
   "Fletcher Opera Theater" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
   "Memorial Auditorium" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
-  "Meymandi Concert Hall" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"]
+  "Meymandi Concert Hall" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"], 
+  "Kennedy Theater" : ["mixer", "indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"]
   }
 
 def filter_on_stopwords(venue_name, event_string, show_date):
   now = date.today()
   if show_date < now:
     return True
-  if venue_stopwords[venue_name]:
+  if venue_name in venue_stopwords:
     custom_stopwords = stopwords + venue_stopwords[venue_name]
   else:
     custom_stopwords = stopwords
@@ -406,10 +407,16 @@ def dpac_parser(venue_name, url):
       if len(opener) > 0:
         event_string = event_string + " - " + opener.string.strip()
     date_container = event.find(class_="date")
-    date_month = date_container.find(class_="m-date__month").string.strip()
-    date_day = date_container.find(class_="m-date__day").string.strip()
-    date_year = date_container.find(class_="m-date__year").string.strip()
-    raw_date = date_month + " " + date_day + date_year
+    if date_container.find(class_="m-date__month") != None:
+      date_month = date_container.find(class_="m-date__month").string.strip()
+    if date_container.find(class_="m-date__day") != None:
+      date_day = date_container.find(class_="m-date__day").string.strip()
+    if date_container.find(class_="m-date__year") != None:
+      date_year = date_container.find(class_="m-date__year").string.strip()
+    if date_month and date_day and date_year:
+      raw_date = date_month + " " + date_day + date_year
+    else:
+      continue
     show_date = dateparser.parse(raw_date)
     more_url = title['href']
     event_dict['venue_name'] = venue_name
