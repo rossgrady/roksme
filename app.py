@@ -1,4 +1,4 @@
-from parsers import rhp_parser, tribe_parser, tickera_parser, eventprime_parser, mec_parser, avia_parser, sqs_parser, seetickets_parser, freemius_parser, dpac_parser, carolina_parser, opendate_parser, clickgobuynow_parser, chakra_parser, rcc_parser
+from parsers import rhp_parser, tribe_parser, tickera_parser, eventprime_parser, mec_parser, avia_parser, sqs_parser, seetickets_parser, freemius_parser, dpac_parser, carolina_parser, opendate_parser, clickgobuynow_parser, chakra_parser, rcc_parser, mrl_parser
 from operator import itemgetter
 from datetime import date
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -33,7 +33,9 @@ venues_list = [
   {'name': 'Lincoln Theatre', 'url': 'https://lincolntheatre.com/events/', 'parser': rhp_parser},
   {'name': "The Fruit", 'url': 'https://app.opendate.io/c/durham-fruit-337', 'parser': opendate_parser},
   {'name':"Sharp 9 Gallery Jazz Club", 'url': 'https://clickgobuynow.com/durham/', 'parser': clickgobuynow_parser},
-  {'name':"The Ritz Raleigh", 'url': 'https://www.ritzraleigh.com/shows', 'parser': chakra_parser}
+  {'name':"The Ritz Raleigh", 'url': 'https://www.ritzraleigh.com/shows', 'parser': chakra_parser}, 
+  {'name':"Duke Arts", 'url': 'https://arts.duke.edu/events/?_series=music-near-the-gardens', 'parser': mrl_parser},
+  {'name':"Wake Forest Listening Room", 'url': 'https://wakeforestlisteningroom.com/events/', 'parser': rhp_parser}
   ]
 
 def orange(venue):
@@ -41,11 +43,11 @@ def orange(venue):
   return venue['venue_name'] in orange_venues
 
 def durham(venue):
-  durham_venues = ["Sharp 9 Gallery Jazz Club", "The Fruit", 'Carolina Theatre', 'Durham Performing Arts Center', "Motorco Music Hall", "the Pinhook", "The Pinhook", "Missy Lane's Assembly Room", "Rubies", "Shadowbox Studio"]
+  durham_venues = ["Sharp 9 Gallery Jazz Club", "The Fruit", 'Carolina Theatre', 'Durham Performing Arts Center', "Motorco Music Hall", "the Pinhook", "The Pinhook", "Missy Lane's Assembly Room", "Rubies", "Shadowbox Studio", "Duke University East Campus"]
   return venue['venue_name'] in durham_venues
 
 def wake(venue):
-  wake_venues = ["The Ritz Raleigh", "The Pour House", "The Night Rider", "The Rialto", "Koka Booth Amphitheatre", "Kings", "Neptunes", "Ruby Deluxe", "Slim's", "The Wicked Witch", "Lincoln Theatre", "Red Hat Amphitheater", "Fletcher Opera Theater", "Memorial Auditorium", "Meymandi Concert Hall"]
+  wake_venues = ["The Ritz Raleigh", "The Pour House", "The Night Rider", "The Rialto", "Koka Booth Amphitheatre", "Kings", "Neptunes", "Ruby Deluxe", "Slim's", "The Wicked Witch", "Lincoln Theatre", "Red Hat Amphitheater", "Fletcher Opera Theater", "Memorial Auditorium", "Meymandi Concert Hall", "Kennedy Theater", "Wake Forest Listening Room"]
   return venue['venue_name'] in wake_venues
 
 def dedupe(events_arr):

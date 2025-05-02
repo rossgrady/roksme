@@ -6,38 +6,40 @@ import json
 from datetime import date
 from urllib.parse import urlparse
 
-stopwords = ["karaoke", "dance party", "open mic"]
+stopwords = ["karaoke", "dance party", "dance night", "open mic", "comedy night", "burlesque"]
 
 venue_stopwords = {
   "Durham Performing Arts Center" : ["sesame street", "broadway", "stardew valley", "twilight in concert", "neil degrasse tyson", "ballet", "musical", "dave ramsey", "brit floyd", "get the led out", "louis ck", "vision of queen", "rocket man"],
   "Martin Marietta Center" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
   "Koka Booth Amphitheatre" : ["bourbon & bbq", "wine & fire"],
-  "Lincoln Theatre" : ["tribute", "bring out yer dead"],
-  "Missy Lane's Assembly Room" : ["closed for a private event", "birthday bash", "brooklyn barista", "brunch society", "vinyl decoded", "exclusive preview", "vin"],
-  "Cat’s Cradle" : [],
+  "Lincoln Theatre" : ["tribute", "bring out yer dead", "ultimate led zeppelin"],
+  "Missy Lane's Assembly Room" : ["closed for a private event", "birthday bash", "brooklyn barista", "brunch society", "vinyl decoded", "exclusive preview", "vin", "tribute band"],
+  "Cat’s Cradle" : ["school of rock"],
   "The Cave" : ["calendar"], 
-  "Cat’s Cradle Back Room" : [], 
+  "Cat’s Cradle Back Room" : ["school of rock"], 
   "Cat’s Cradle Back Yard" : [],
+  "Duke University East Campus" : [],
   "Haw River Ballroom" : [],
   "Local 506" : [],
-  "Sharp 9 Gallery Jazz Club" : [], 
+  "Sharp 9 Gallery Jazz Club" : ["student combo"], 
   "The Fruit" : ["fruit flea", "rhizome comedy"], 
   "Carolina Theatre" : ["a tribute to"], 
-  "Motorco Music Hall" : ["canceled", "party", "chappell roan", "drag bingo"], 
+  "Motorco Music Hall" : ["canceled", "party", "chappell roan", "drag bingo", "adult science fair", "motown-inspired"], 
   "The Pinhook" : ["russell lacy", "burlesque", "blends with friends"], 
   "Rubies" : ["byov", "renaissance disko", "adulting"],
   "Shadowbox Studio" : ["movie loft"],
-  "The Ritz Raleigh" : ["rave"],
-  "The Pour House" : ["superbloom comedy", "tribute experience", "a tribute to", "tribute night", "tributes to"],
+  "The Ritz Raleigh" : [],
+  "The Pour House" : ["superbloom comedy", "tribute experience", "a tribute to", "tribute night", "tributes to", "listening party"],
   "The Night Rider" : [],
   "The Rialto" : [],
   "Kings" : [],
+  "Wake Forest Listening Room" : [],
   "Neptunes" : ["goth party", "munjo", "guitar hero iii", "neptunes comedy", "comedy taping", "chappell rodeo"],
-  "Ruby Deluxe" : ["glitter hour", "sub rosa"],
+  "Ruby Deluxe" : ["glitter hour", "sub rosa", "animazement"],
   "Slim's" : ["wild turkey thursday", "private event upstairs", "private mixer upstairs", "music trivia", "tequila tuesday", "pangean"],
   "The Wicked Witch" : ["safe word", "triangle film", "goth night"],
   "Red Hat Amphitheater" : [],
-  "Fletcher Opera Theater" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
+  "Fletcher Opera Theater" : ["indian dance", "ballet", "symphony", "recital", "ken burns", "concert", "opera", "raleigh ringers"],
   "Memorial Auditorium" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
   "Meymandi Concert Hall" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"], 
   "Kennedy Theater" : ["mixer", "indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"]
@@ -53,6 +55,7 @@ def filter_on_stopwords(venue_name, event_string, show_date):
     custom_stopwords = stopwords
   for word in custom_stopwords:
     if word in event_string.lower():
+      print("found", event_string, "at", venue_name, "in stopwords")
       return True
   return False
 
@@ -92,9 +95,15 @@ def rhp_parser(venue_name, url):
     venue_url = url
     opener = event.find(class_="rhp-event__subheader--list")
     if(opener):
-      opener_name = opener.string.strip()
-      if len(opener_name) > 0:
-        event_string = title+" w/ "+opener_name
+      if len(opener) > 0 and opener.string:
+        opener_name = opener.string.strip()
+        if len(opener_name) > 0:
+          if "w/" in opener_name:
+            event_string = title+" "+opener_name
+          else:
+            event_string = title+" w/ "+opener_name
+      else:
+        continue
     venue = event.find(class_="venueLink")
     if venue:
       venue_url = venue['href']
@@ -591,4 +600,37 @@ def rcc_parser(venue_name, url):
         flag = filter_on_stopwords(venue_name, event_string, show_date.date())
         if flag == False:
           event_array.append(event_dict)
+  return event_array
+
+def mrl_parser(venue_name, url):
+  source = venue_name
+  html_content = retrieve(url)
+  soup = BeautifulSoup(html_content, 'html5lib')
+  events = soup(class_="post-event")
+  event_array = []
+  for event in events:
+    event_dict = {}
+    title = event.find(class_="title").string.strip()
+    event_string = title
+    more_url = event.find(class_="post-header")['href']
+    event_details = retrieve(more_url)
+    details_soup = BeautifulSoup(event_details, 'html5lib')
+    venue = details_soup.find(class_="location-link")
+    if venue:
+      venue_url = venue['href']
+      venue_name = venue.string.strip()
+    raw_date = ""
+    for string in event.find(class_="event-date-alt").stripped_strings:
+      raw_date = raw_date + string
+    show_date = dateparser.parse(raw_date)
+    event_dict['venue_name'] = venue_name
+    event_dict['venue_url'] = venue_url
+    event_dict['event_string'] = event_string
+    event_dict['event_date'] = show_date.date()
+    event_dict['human_date'] = show_date.strftime('%A, %B %d, %Y')
+    event_dict['more_url'] = more_url
+    event_dict['source'] = source
+    flag = filter_on_stopwords(venue_name, event_string, show_date.date())
+    if flag == False:
+      event_array.append(event_dict)
   return event_array
