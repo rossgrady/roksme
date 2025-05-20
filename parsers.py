@@ -11,7 +11,7 @@ stopwords = ["karaoke", "dance party", "dance night", "open mic", "comedy night"
 venue_stopwords = {
   "Durham Performing Arts Center" : ["sesame street", "broadway", "stardew valley", "twilight in concert", "neil degrasse tyson", "ballet", "musical", "dave ramsey", "brit floyd", "get the led out", "louis ck", "vision of queen", "rocket man"],
   "Martin Marietta Center" : ["indian dance", "ballet", "symphony", "dance recital", "ken burns", "concert", "opera"],
-  "Koka Booth Amphitheatre" : ["bourbon & bbq", "wine & fire"],
+  "Koka Booth Amphitheatre" : ["bourbon & bbq", "wine & fire", "symphony"],
   "Lincoln Theatre" : ["tribute", "bring out yer dead", "ultimate led zeppelin"],
   "Missy Lane's Assembly Room" : ["closed for a private event", "birthday bash", "brooklyn barista", "brunch society", "vinyl decoded", "exclusive preview", "vin", "tribute band"],
   "Cat’s Cradle" : ["school of rock"],
