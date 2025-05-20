@@ -3,7 +3,7 @@ import html5lib
 import requests
 import dateparser
 import json
-from datetime import date
+from datetime import date, datetime
 from urllib.parse import urlparse
 
 stopwords = []
@@ -55,6 +55,8 @@ def mec_parser(venue_name, url):
     venue_url = url
     raw_date = event.find(class_="mec-start-date-label").string.strip()
     show_date = dateparser.parse(raw_date)
+    if not isinstance(show_date, datetime):
+      continue
     more_url = event.find(class_='mec-event-title').a['href']
     event_dict['venue_name'] = venue_name
     event_dict['venue_url'] = venue_url
@@ -64,6 +66,8 @@ def mec_parser(venue_name, url):
     event_dict['more_url'] = more_url
     event_dict['source'] = source
     if "Movie Loft" in event_string:
+      event_array.append(event_dict)
+    elif "Screening" in event_string:
       event_array.append(event_dict)
   return event_array
 
